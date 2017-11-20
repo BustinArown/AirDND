@@ -1,0 +1,893 @@
+---
+swagger: "2.0"
+info:
+  description: "AirDND's API"
+  version: "1.0.0"
+  title: "AirDND API"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "virtserver.swaggerhub.com"
+basePath: "/AirDND/AirDND/1.0.0"
+tags:
+- name: "admins"
+  description: "Secured Admin calls"
+- name: "users"
+  description: "Operations available to users"
+schemes:
+- "https"
+paths:
+  /listings:
+    get:
+      tags:
+      - "admins"
+      summary: "get a listing"
+      description: "get a listing in the system"
+      operationId: "controllers.admins_controller.get_listing"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "listingId"
+        in: "header"
+        description: "Listing Id to update"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "Listing retreived"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    post:
+      tags:
+      - "admins"
+      summary: "adds a listing"
+      description: "Adds a listing in the system"
+      operationId: "controllers.admins_controller.add_listing"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "listing"
+        description: "Listing to add"
+        required: true
+        schema:
+          $ref: "#/definitions/Listing"
+      responses:
+        201:
+          description: "Listing created"
+        400:
+          description: "invalid input, object invalid"
+        409:
+          description: "an existing item already exists"
+      x-tags:
+      - tag: "admins"
+    put:
+      tags:
+      - "admins"
+      summary: "update a listing"
+      description: "Updates a listing in the system"
+      operationId: "controllers.admins_controller.update_listing"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "listingId"
+        in: "header"
+        description: "Listing Id to update"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "listing"
+        description: "New listing information"
+        required: true
+        schema:
+          $ref: "#/definitions/Listing"
+      responses:
+        202:
+          description: "Listing updated"
+        400:
+          description: "invalid input, object invalid or invalid id"
+      x-tags:
+      - tag: "admins"
+    delete:
+      tags:
+      - "admins"
+      summary: "remove a listing"
+      description: "remove a listing in the system"
+      operationId: "controllers.admins_controller.remove_listing"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "listingId"
+        in: "header"
+        description: "Listing Id to remove"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "Listing removed"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - tag: "admins"
+  /listings/locations:
+    get:
+      tags:
+      - "admins"
+      summary: "searches listings"
+      description: "By passing in the appropriate options, you can search for\navailable\
+        \ listings in the system\n"
+      operationId: "controllers.admins_controller.search_listing"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "location"
+        in: "query"
+        description: "pass a location"
+        required: true
+        type: "string"
+        format: "<City>, <StateAbbreviation>"
+      - name: "startDate"
+        in: "query"
+        description: "has times available after"
+        required: false
+        type: "string"
+        format: "date-time"
+      - name: "endDate"
+        in: "query"
+        description: "has times available before"
+        required: false
+        type: "string"
+        format: "date-time"
+      - name: "petsAllowed"
+        in: "query"
+        description: "pass an optional boolean"
+        required: false
+        type: "boolean"
+      - name: "numGuests"
+        in: "query"
+        description: "pass an optional number"
+        required: false
+        type: "integer"
+      - name: "numAdults"
+        in: "query"
+        description: "pass an optional number"
+        required: false
+        type: "integer"
+        format: "int32"
+      - name: "sectionOffset"
+        in: "query"
+        description: "number of sections to skip for pagination"
+        required: false
+        type: "integer"
+        minimum: 0
+        format: "int32"
+      - name: "listingsOffset"
+        in: "query"
+        description: "number of listings to skip for pagination"
+        required: false
+        type: "integer"
+        minimum: 0
+        format: "int32"
+      responses:
+        200:
+          description: "search results matching criteria"
+          schema:
+            $ref: "#/definitions/LocationSection"
+        400:
+          description: "bad input parameter"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+  /listings/similar:
+    get:
+      tags:
+      - "admins"
+      summary: "get similar listings"
+      description: "get listings similar to a selected listing."
+      operationId: "controllers.admins_controller.getsimilar_listings"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "listingId"
+        in: "query"
+        description: "get a similar listing"
+        required: true
+        type: "string"
+        format: "uuid"
+      - name: "startDate"
+        in: "query"
+        description: "has times available after"
+        required: false
+        type: "string"
+        format: "date-time"
+      - name: "endDate"
+        in: "query"
+        description: "has times available before"
+        required: false
+        type: "string"
+        format: "date-time"
+      - name: "sectionOffset"
+        in: "query"
+        description: "number of sections to skip for pagination"
+        required: false
+        type: "integer"
+        minimum: 0
+        format: "int32"
+      - name: "listingsOffset"
+        in: "query"
+        description: "number of listings to skip for pagination"
+        required: false
+        type: "integer"
+        minimum: 0
+        format: "int32"
+      responses:
+        200:
+          description: "Similar Listing retrieved"
+          schema:
+            $ref: "#/definitions/SimilarSection"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+  /reviews:
+    get:
+      tags:
+      - "admins"
+      summary: "get a review"
+      description: "get a review of a listing"
+      operationId: "controllers.admins_controller.get_review"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "reviewId"
+        in: "header"
+        description: "Review Id to get"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "Review retreived"
+          schema:
+            $ref: "#/definitions/Review"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    post:
+      tags:
+      - "admins"
+      summary: "adds a review"
+      description: "Adds a review of a listing"
+      operationId: "controllers.admins_controller.add_review"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "review"
+        description: "Review to add"
+        required: true
+        schema:
+          $ref: "#/definitions/Review"
+      responses:
+        201:
+          description: "Review created"
+        400:
+          description: "invalid input, object invalid"
+        409:
+          description: "an existing item already exists"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    put:
+      tags:
+      - "admins"
+      summary: "update a review"
+      description: "Updates a review of a listing"
+      operationId: "controllers.admins_controller.update_review"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "review"
+        description: "New review information"
+        required: true
+        schema:
+          $ref: "#/definitions/Review"
+      responses:
+        200:
+          description: "Review updated"
+        400:
+          description: "invalid input, object invalid or invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    delete:
+      tags:
+      - "admins"
+      summary: "remove a review"
+      description: "remove a review of a listing"
+      operationId: "controllers.admins_controller.remove_review"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "reviewId"
+        in: "header"
+        description: "Review Id to remove"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        201:
+          description: "Review removed"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+  /listings/reviews:
+    get:
+      tags:
+      - "admins"
+      summary: "get a review"
+      description: "get a reviews for a listing"
+      operationId: "controllers.admins_controller.get_reviews"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "listingId"
+        in: "header"
+        description: "listing Id"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "Review retreived"
+          schema:
+            $ref: "#/definitions/Reviews"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+  /users:
+    get:
+      tags:
+      - "admins"
+      summary: "get a user"
+      description: "get a user from the system"
+      operationId: "controllers.admins_controller.get_users"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "header"
+        description: "User ID to update"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "User retreived"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    post:
+      tags:
+      - "admins"
+      summary: "adds a user"
+      description: "Adds a user in the system"
+      operationId: "controllers.admins_controller.add_user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "user"
+        description: "User to add"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        201:
+          description: "User created"
+        400:
+          description: "invalid input, object invalid"
+        409:
+          description: "an existing user already exists"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    put:
+      tags:
+      - "admins"
+      summary: "update a user"
+      description: "Updates a user in the system"
+      operationId: "controllers.admins_controller.update_user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "header"
+        description: "User Id to update"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "user"
+        description: "New user information"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        201:
+          description: "User updated"
+        400:
+          description: "invalid input, object invalid or invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    delete:
+      tags:
+      - "admins"
+      summary: "remove a user"
+      description: "remove a user in the system"
+      operationId: "controllers.admins_controller.remove_user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "header"
+        description: "User Id to remove"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "User removed"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+  /reservations:
+    get:
+      tags:
+      - "admins"
+      summary: "get a reservation"
+      description: "get a reservation in the system"
+      operationId: "controllers.admins_controller.get_reservation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "reservationId"
+        in: "header"
+        description: "Reservation Id"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "reservation retreived"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    post:
+      tags:
+      - "admins"
+      summary: "add a reservation"
+      description: "Adds a reservation in the system"
+      operationId: "controllers.admins_controller.add_reservation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "reservation"
+        description: "reservation to add"
+        required: true
+        schema:
+          $ref: "#/definitions/Reservation"
+      responses:
+        201:
+          description: "reservation created"
+        400:
+          description: "invalid input, object invalid"
+        409:
+          description: "an existing reservation already exists"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    put:
+      tags:
+      - "admins"
+      summary: "update a reservation"
+      description: "Updates a reservation in the system"
+      operationId: "controllers.admins_controller.update_reservation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "reservationId"
+        in: "header"
+        description: "Reservation Id to update"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "reservation"
+        description: "New reservation information"
+        required: true
+        schema:
+          $ref: "#/definitions/Reservation"
+      responses:
+        202:
+          description: "Reservation updated"
+        400:
+          description: "invalid input, object invalid or invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+    delete:
+      tags:
+      - "admins"
+      summary: "remove a reservation"
+      description: "remove a reservation in the system"
+      operationId: "controllers.admins_controller.remove_reservation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "reservationId"
+        in: "header"
+        description: "reservation Id to remove"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "Reservation removed"
+        400:
+          description: "invalid input, invalid id"
+      x-tags:
+      - hasMore: "true"
+        tag: "admins"
+      - tag: "users"
+definitions:
+  LocationSection:
+    type: "object"
+    required:
+    - "listings"
+    - "pagination"
+    properties:
+      listings:
+        $ref: "#/definitions/LocationListings"
+      pagination:
+        $ref: "#/definitions/Pagination"
+  SimilarSection:
+    type: "object"
+    required:
+    - "listings"
+    - "pagination"
+    properties:
+      listings:
+        $ref: "#/definitions/SimilarListings"
+      pagination:
+        $ref: "#/definitions/Pagination"
+  Pagination:
+    type: "object"
+    required:
+    - "hasNextSection"
+    - "listingsOffset"
+    - "sectionOffset"
+    properties:
+      hasNextSection:
+        type: "boolean"
+        format: "boolean"
+        example: true
+      listingsOffset:
+        type: "integer"
+        format: "int32"
+        example: 10
+      sectionOffset:
+        type: "integer"
+        format: "int32"
+        example: 0
+  SimilarListings:
+    type: "array"
+    items:
+      $ref: "#/definitions/Listing"
+  LocationListings:
+    type: "array"
+    items:
+      $ref: "#/definitions/Listing"
+  Listing:
+    required:
+    - "availabilities"
+    - "details"
+    - "pricing"
+    properties:
+      details:
+        $ref: "#/definitions/ListingDetails"
+      pricing:
+        $ref: "#/definitions/Pricing"
+      availabilities:
+        $ref: "#/definitions/Availabilities"
+  ListingDetails:
+    type: "object"
+    required:
+    - "bathrooms"
+    - "bedrooms"
+    - "beds"
+    - "id"
+    - "instantBookable"
+    - "isNewListing"
+    - "lat"
+    - "lng"
+    - "location"
+    - "name"
+    - "neighborhood"
+    - "propertyType"
+    - "reviewsCount"
+    - "roomType"
+    - "starRating"
+    properties:
+      bathrooms:
+        type: "number"
+        format: "float"
+        example: 1.5
+      bedrooms:
+        type: "integer"
+        format: "int32"
+        example: 1
+      beds:
+        type: "integer"
+        format: "int32"
+        example: 1
+      location:
+        type: "string"
+        format: "<City>, <StateAbbreviation>"
+        example: "Houston, TX"
+      id:
+        type: "string"
+        format: "uuid"
+        example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+      instantBookable:
+        type: "boolean"
+        format: "boolean"
+        example: true
+      isNewListing:
+        type: "boolean"
+        format: "boolean"
+        example: false
+      lat:
+        type: "number"
+        format: "float"
+        example: 15.23
+      lng:
+        type: "number"
+        format: "float"
+        example: -12.74
+      name:
+        type: "string"
+        format: "string"
+        example: "Downtown Loft"
+      neighborhood:
+        type: "string"
+        format: "string"
+        example: "Downtown Houston"
+      propertyType:
+        type: "string"
+        format: "string"
+        example: "Apartment"
+      reviewsCount:
+        type: "integer"
+        format: "integer"
+        example: 27
+      roomType:
+        type: "string"
+        format: "string"
+        example: "Entire Apt."
+      starRating:
+        type: "number"
+        format: "float"
+        example: 4.3
+  Pricing:
+    type: "object"
+    required:
+    - "cost"
+    - "rateType"
+    properties:
+      rateType:
+        type: "string"
+        format: "string"
+        example: "nightly"
+      cost:
+        type: "number"
+        format: "decimal"
+        example: 12.339999999999999857891452847979962825775146484375
+  Availabilities:
+    type: "array"
+    items:
+      $ref: "#/definitions/Dates"
+  Dates:
+    type: "array"
+    items:
+      type: "string"
+      format: "date-time"
+  Reservation:
+    type: "object"
+    required:
+    - "dates"
+    - "listingId"
+    properties:
+      listingId:
+        type: "string"
+        format: "uuid"
+        example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+      dates:
+        $ref: "#/definitions/Dates"
+  Reviews:
+    type: "array"
+    items:
+      $ref: "#/definitions/Review"
+  Review:
+    type: "object"
+    required:
+    - "comments"
+    - "createdAt"
+    - "id"
+    properties:
+      comments:
+        type: "string"
+        format: "string"
+        example: "Hello"
+      createdAt:
+        type: "string"
+        format: "date-time"
+        example: "2017-03-22T19:08:16.000Z"
+      id:
+        type: "string"
+        format: "uuid"
+        example: "d290f1ee-6c54-4b01-90e6-d701748f0851"
+  User:
+    type: "object"
+    required:
+    - "acceptanceRate"
+    - "createdAt"
+    - "friendsCount"
+    - "hardSuspended"
+    - "id"
+    - "listingsCount"
+    - "publiclyVisibleWishlistsCount"
+    - "recommendationCount"
+    - "responseRate"
+    - "responseTime"
+    - "revieweeCount"
+    - "softSuspended"
+    - "suspended"
+    - "totalListingsCount"
+    - "wishlistsCount"
+    properties:
+      acceptanceRate:
+        type: "string"
+        format: "string"
+        example: "high"
+      createdAt:
+        type: "string"
+        format: "date-time"
+        example: "2016-06-06T00:23:07.000Z"
+      friendsCount:
+        type: "integer"
+        format: "int32"
+        example: 3
+      hardSuspended:
+        type: "boolean"
+        format: "boolean"
+        example: false
+      id:
+        type: "integer"
+        format: "int32"
+        example: 1234
+      listingsCount:
+        type: "integer"
+        format: "int32"
+        example: 3
+      publiclyVisibleWishlistsCount:
+        type: "integer"
+        format: "int32"
+        example: 1
+      recommendationCount:
+        type: "integer"
+        format: "int32"
+        example: 3
+      responseRate:
+        type: "string"
+        format: "string"
+        example: "high"
+      responseTime:
+        type: "string"
+        format: "string"
+        example: "low"
+      revieweeCount:
+        type: "integer"
+        format: "int32"
+        example: 2
+      softSuspended:
+        type: "boolean"
+        format: "boolean"
+        example: false
+      suspended:
+        type: "boolean"
+        format: "boolean"
+        example: false
+      totalListingsCount:
+        type: "integer"
+        format: "int32"
+        example: 3
+      wishlistsCount:
+        type: "integer"
+        format: "int32"
+        example: 3
